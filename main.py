@@ -175,52 +175,34 @@ def balance_traffic_reward():
         reward -= traffic_diff  # Penalizar por desviaciones del promedio
     return reward
 
-# Función para análisis de resultados después de la simulación
+def plot_graph(data, title, xlabel, ylabel, labels, filename):
+    """Función genérica para graficar los datos."""
+    plt.figure(figsize=(10, 6))
+    for label, values in data.items():
+        plt.plot(values, label=label)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend(labels)
+    plt.savefig(filename)
+    plt.close()  # Cerrar la figura
+
 def analyze_results():
     # Análisis de la evolución de las tablas Q
-    for r in routers:
-        plt.figure(figsize=(10, 6))
-        q_values = np.array([list(q.values()) for q in q_values_history[r]])
-        plt.plot(q_values)
-        plt.title(f"Evolución de las Q-values para {r}")
-        plt.xlabel("Iteración")
-        plt.ylabel("Valor de Q")
-        plt.legend(servidores)
-        plt.savefig(f"q_values_{r}.png")  # Guardar la gráfica como archivo PNG
-        plt.close()  # Cerrar la figura
+    q_values_data = {r: [list(q.values()) for q in q_values_history[r]] for r in routers}
+    plot_graph(q_values_data, "Evolución de las Q-values", "Iteración", "Valor de Q", servidores, "q_values.png")
 
     # Análisis de la carga de los servidores
-    plt.figure(figsize=(10, 6))
-    for s in servidores:
-        plt.plot(server_load_history[s], label=f"Servidor {s}")
-    plt.title("Evolución de la carga de los servidores")
-    plt.xlabel("Iteración")
-    plt.ylabel("Carga del servidor")
-    plt.legend()
-    plt.savefig("server_loads.png")  # Guardar la gráfica como archivo PNG
-    plt.close()  # Cerrar la figura
+    server_load_data = {s: server_load_history[s] for s in servidores}
+    plot_graph(server_load_data, "Evolución de la carga de los servidores", "Iteración", "Carga del servidor", servidores, "server_loads.png")
 
     # Análisis de tráfico por router
-    plt.figure(figsize=(10, 6))
-    for r in routers:
-        plt.plot(router_traffic_history[r], label=f"Router {r}")
-    plt.title("Evolución del tráfico en los routers")
-    plt.xlabel("Iteración")
-    plt.ylabel("Tráfico del router")
-    plt.legend()
-    plt.savefig("router_traffic.png")  # Guardar la gráfica como archivo PNG
-    plt.close()  # Cerrar la figura
+    router_traffic_data = {r: router_traffic_history[r] for r in routers}
+    plot_graph(router_traffic_data, "Evolución del tráfico en los routers", "Iteración", "Tráfico del router", routers, "router_traffic.png")
 
     # Análisis de recompensas
-    plt.figure(figsize=(10, 6))
-    plt.plot(reward_history, label="Recompensas acumuladas")
-    plt.title("Evolución de las recompensas")
-    plt.xlabel("Iteración")
-    plt.ylabel("Recompensa")
-    plt.legend()
-    plt.savefig("rewards.png")  # Guardar la gráfica como archivo PNG
-    plt.close()  # Cerrar la figu
-    
+    plot_graph({"Recompensas acumuladas": reward_history}, "Evolución de las recompensas", "Iteración", "Recompensa", [], "rewards.png")
+
 # Animación
 fig = plt.figure(figsize=(8, 6))
 ani = animation.FuncAnimation(fig, update, frames=num_iteraciones, repeat=False, interval=500)
